@@ -5,11 +5,6 @@ class MasterMind
     @board = Board.new
   end
 
-  def main
-    check_players
-
-  end
-
   def check_players
     puts "Would you like to play against the computer 'c' or another person 'h'?"
     response = gets.chomp.downcase
@@ -18,12 +13,19 @@ class MasterMind
   end
 
   def set_players(response)
-    role = player_role
-    @player_one = HumanPlayer.new(role, "Player 1")
-    if response == "h"
-      @player_two = HumanPlayer.new(role, "Player 2")
+    role1 = player_role
+
+    if role1 == 'set'
+      role2 = 'break'
     else
-      @player_two = ComputerPlayer.new(role, "SirBeepington")
+      role2 = 'set'
+    end
+
+    @player_one = HumanPlayer.new(role1, "Player 1")
+    if response == "h"
+      @player_two = HumanPlayer.new(role2, "Player 2")
+    else
+      @player_two = ComputerPlayer.new(role2, "SirBeepington")
     end
   end
 
@@ -31,7 +33,7 @@ class MasterMind
     puts "Would you like to set the code (type 'set')"
     puts "or break the code (type 'break')?"
     valid = false
-    while valid = false
+    while valid == false
       role = gets.chomp.downcase
       if role == "set" || role == "break"
         valid = true
@@ -39,14 +41,17 @@ class MasterMind
         puts "that was not a valid code, try again"
       end
     end
+    role
   end
 
-  # run game loop
   def choose_solution
+    #this needs refactoring to work
+    solution1 = @player_one.set_solution
+    solution2 = @player_two.set_solution
+    solution = solution1 || solution2
     valid = false
-    while valid = false
-      solution = @player_two.set_solution
-      if @player_two.valid_input(solution)
+    while valid == false
+      if @player_one.valid_input(solution) == true
         valid = true
       else
         puts "that was not a valid code, try again"
@@ -56,6 +61,7 @@ class MasterMind
   end
 
   def game_logic
+    check_players
     choose_solution
     game_loop
     play_again?
@@ -89,17 +95,14 @@ class MasterMind
     puts "Would you like to play again? 'y' for yes anything else to quit"
     response = gets.chomp.downcase
     if response == "y"
-      a = Mastermind.new
-      a.main
+      a = MasterMind.new
+      a.game_logic
     else
-      puts "Thank you for baring with us!"
+      puts "Thank you for bearing with us!"
       exit
     end
-
   end
   # quit
-
-
 end
 
 class Board
@@ -110,6 +113,10 @@ class Board
     @solution = nil
     @guesses = []
     @results = []
+  end
+
+  def results
+    @results
   end
 
   def render
@@ -142,6 +149,7 @@ class Board
     end
 
     feedback[1] = 4 - feedback.inject(0){|sum,x| sum + x}
+    return feedback
   end
 
 end
@@ -150,8 +158,8 @@ class Player
 
   def valid_input(combination)
     valid = true
-    combination.each.to_i do |number|
-      if number > 6 || number < 1
+    combination.each do |number|
+      if number.to_i > 6 || number.to_i < 1
         valid = false
       end
     end
@@ -162,17 +170,17 @@ end
 
 class HumanPlayer < Player
 
-  def initialize(role = "codesetter")
+  def initialize(role,name)
     @role = role
     @name = name
   end
 
   def set_solution
-    if role = "codesetter"
+    if @role == "set"
       puts "You get to set the code, #{@name}"
       puts "Pick four numbers between 1 and 6 inclusive"
       puts "In the following format '1 2 3 4' "
-      solution = gets.chomp.split("")
+      solution = gets.chomp.split(" ")
     else
       solution = nil
     end
@@ -182,17 +190,19 @@ class HumanPlayer < Player
   def guess
     puts "Pick four numbers between 1 and 6 inclusive"
     puts "In the following format '1 2 3 4' "
-    player_guess = gets.chomp.split('')
+    player_guess = gets.chomp.split(' ')
     if valid_input(player_guess)
       player_guess
     else guess
+    end  
   end
   # make guess
 end
 
 class ComputerPlayer < Player
-  def initialize(role = "codesetter")
+  def initialize(role,name)
     @role = role
+    @name = name
   end
   def guess
 
@@ -202,3 +212,7 @@ class ComputerPlayer < Player
   # algorithm
   # make guess
 end
+
+
+a = MasterMind.new
+a.game_logic

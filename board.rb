@@ -4,8 +4,8 @@ class Board
   attr_writer :solution
   def initialize
     @solution = [1,2,3,4]
-    @guesses = []
-    @results = []
+    @guesses = [[1,2,3,4], [2,3,4,5]]
+    @results = [[2,1,1], [3,1,0]]
   end
 
   def render
@@ -38,10 +38,10 @@ class Board
     end 
 
     feedback[1] = 4 - feedback.inject(0){|sum,x| sum + x} 
-    print feedback   
+    feedback   
   end 
 
 end
 
 a = Board.new
-a.board_move([4,3,2,1])
+a.guess_feedback([1,2,3,4])
