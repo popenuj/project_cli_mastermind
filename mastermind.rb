@@ -25,17 +25,35 @@ class MasterMind
   def choose_code
     valid = false
     while valid = false
-      @code = @player_one.set_code || @player_two.set_code
-      if @code.code_valid? 
+      @code = @player_two.set_code
+      if @code.code_valid?
         valid = true
-      else 
+      else
         puts "that was not a valid code, try again"
       end
     end
   end
 
-  def game_loop
+  def game_logic
     choose_code
+    game_loop
+    play_again?
+  end
+
+  def game_loop
+    @tries = 0
+    @tries.upto(12) do
+      @board.render
+      guess = @player_one.guess
+      @board.board_move(guess)
+      game_over?
+    end
+  end
+  def game_over?
+
+  end
+  def play_again?
+
   end
   # check game over
   # check win
@@ -49,7 +67,7 @@ class MasterMind
     valid = true
     code.each.to_i do |number|
       if number > 6 || number < 1
-        valid = false 
+        valid = false
       end
     end
     valid
@@ -63,6 +81,15 @@ class Board
     PEG_COLOR = %w(1 2 3 4 5 6)
     @guesses = []
     @results = []
+  end
+  def render
+    
+  end
+  def board_move(guess)
+    guess_check(guess)
+  end
+  def guess_check
+
   end
   # prompt guesser for move
   # checks guess
@@ -84,7 +111,10 @@ class HumanPlayer
     else
       code = nil
     end
-    code  
+    code
+  end
+  def guess
+
   end
   # make guess
 end
@@ -92,6 +122,9 @@ end
 class ComputerPlayer
   def initialize(role = "codesetter")
     @role = role
+  end
+  def guess
+
   end
   # determines code
   # sets code
