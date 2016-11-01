@@ -5,20 +5,40 @@ class MasterMind
     @board = Board.new
   end
 
-  def set_players
-    @player_one = HumanPlayer.new("codebreaker", "Player 1")
-    if check_players == "h"
-      @player_two = HumanPlayer.new("codesetter", "Player 2")
-    else
-      @player_two = ComputerPlayer.new("codesetter", "SirBeepington")
-    end
+  def main
+    check_players
+
   end
 
   def check_players
     puts "Would you like to play against the computer 'c' or another person 'h'?"
     response = gets.chomp.downcase
     check_players unless response == "c" || response == "h"
-    reponse
+    set_players(response)
+  end
+
+  def set_players(response)
+    role = player_role
+    @player_one = HumanPlayer.new(role, "Player 1")
+    if response == "h"
+      @player_two = HumanPlayer.new(role, "Player 2")
+    else
+      @player_two = ComputerPlayer.new(role, "SirBeepington")
+    end
+  end
+
+  def player_role
+    puts "Would you like to set the code (type 'set')"
+    puts "or break the code (type 'break')?"
+    valid = false
+    while valid = false
+      role = gets.chomp.downcase
+      if role == "set" || role == "break"
+        valid = true
+      else
+        puts "that was not a valid code, try again"
+      end
+    end
   end
 
   # run game loop
@@ -47,23 +67,36 @@ class MasterMind
       @board.render
       guess = @player_one.guess
       @board.board_move(guess)
-      game_over?
+      game_win?
+    end
+    game_lose
+  end
+
+  def game_win?
+    if @board.results[-1][0] == 4
+      puts "Congratulations! You have won the game!"
+      play_again?
     end
   end
 
-  def game_over?
-
+  def game_lose
+    puts "I'm sorry, you ran out of guesses!"
+    puts "The correct solution was #{@board.solution}."
+    play_again?
   end
 
   def play_again?
+    puts "Would you like to play again? 'y' for yes anything else to quit"
+    response = gets.chomp.downcase
+    if response == "y"
+      a = Mastermind.new
+      a.main
+    else
+      puts "Thank you for baring with us!"
+      exit
+    end
 
   end
-  # check game over
-  # check win
-  # check loss
-  # quit?
-  # play again?
-  # reverse player roles
   # quit
 
 
@@ -72,7 +105,7 @@ end
 class Board
   PEG_COLOR = [1, 2, 3, 4, 5, 6]
 
-  attr_writer :solution
+  attr_accessor :solution
   def initialize
     @solution = nil
     @guesses = []
@@ -98,18 +131,18 @@ class Board
     feedback = [0,0,0]
     guess.each_with_index do |number, index|
       if number == @solution[index]
-        feedback[0] += 1 
+        feedback[0] += 1
       end
     end
-        
+
     guess.each do |number|
       unless @solution.include?(number)
-        feedback[2] += 1 
+        feedback[2] += 1
       end
-    end 
+    end
 
-    feedback[1] = 4 - feedback.inject(0){|sum,x| sum + x}    
-  end 
+    feedback[1] = 4 - feedback.inject(0){|sum,x| sum + x}
+  end
 
 end
 
