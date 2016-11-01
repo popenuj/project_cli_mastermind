@@ -20,8 +20,9 @@ class MasterMind
     check_players unless response == "c" || response == "h"
     reponse
   end
+
   # run game loop
-  def choose_code
+  def choose_solution
     valid = false
     while valid = false
       solution = @player_two.set_solution
@@ -31,11 +32,11 @@ class MasterMind
         puts "that was not a valid code, try again"
       end
     end
-
+    @board.solution = solution
   end
 
   def game_logic
-    choose_code
+    choose_solution
     game_loop
     play_again?
   end
@@ -45,7 +46,7 @@ class MasterMind
     @tries.upto(12) do
       @board.render
       guess = @player_one.guess
-      @board.board_move(guess, solution)
+      @board.board_move(guess)
       game_over?
     end
   end
@@ -71,8 +72,9 @@ end
 class Board
   PEG_COLOR = [1, 2, 3, 4, 5, 6]
 
+  attr_writer :solution
   def initialize
-    @pegs = {}
+    @solution = nil
     @guesses = []
     @results = []
   end
@@ -87,13 +89,28 @@ class Board
   end
 
 
-  def board_move(guess, solution)
+  def board_move(guess)
     @guesses << guess
-    @results << guess_feedback(guess, solution)
+    @results << guess_feedback(guess)
   end
-  # prompt guesser for move
-  # determine outcome
-  # render board
+
+  def guess_feedback(guess)
+    feedback = [0,0,0]
+    guess.each_with_index do |number, index|
+      if number == @solution[index]
+        feedback[0] += 1 
+      end
+    end
+        
+    guess.each do |number|
+      unless @solution.include?(number)
+        feedback[2] += 1 
+      end
+    end 
+
+    feedback[1] = 4 - feedback.inject(0){|sum,x| sum + x}    
+  end 
+
 end
 
 class Player

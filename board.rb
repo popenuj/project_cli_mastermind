@@ -1,34 +1,47 @@
 class Board
-  # initialize board
   PEG_COLOR = [1, 2, 3, 4, 5, 6]
+
+  attr_writer :solution
   def initialize
-    @pegs = {}
-    @guesses = [[1,2,3,4],[1,2,1,4],[1,2,2,4],[1,2,4,4]]
-    @results = [[1,2,2],[1,2,5],[1,2,0],[0,2,1]]
+    @solution = [1,2,3,4]
+    @guesses = []
+    @results = []
   end
 
   def render
-    @guesses.zip(@results).each do |guess, result| 
+    @guesses.zip(@results).each do |guess, result|
       print "\n"
       print "#{guess}    #{result}"
-           
     end
     print "[# fully right, # right number, # wrong] \n"
     puts "You are on guess #{@guesses.length}"
   end
 
+
   def board_move(guess)
-    guess_check(guess)
+    @guesses << guess
+    @results << guess_feedback(guess)
   end
 
-  def guess_check
+  def guess_feedback(guess)
+    feedback = [0,0,0]
+    guess.each_with_index do |number, index|
+      if number == @solution[index]
+        feedback[0] += 1 
+      end
+    end
+        
+    guess.each do |number|
+      unless @solution.include?(number)
+        feedback[2] += 1 
+      end
+    end 
 
-  end
-  # prompt guesser for move
-  # checks guess
-  # render board
-  #
+    feedback[1] = 4 - feedback.inject(0){|sum,x| sum + x} 
+    print feedback   
+  end 
+
 end
 
 a = Board.new
-a.render 
+a.board_move([4,3,2,1])
