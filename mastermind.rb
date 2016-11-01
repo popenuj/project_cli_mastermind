@@ -3,7 +3,6 @@ class MasterMind
   # initialize game
   def initialize
     @board = Board.new
-    @code = []
   end
 
   def set_players
@@ -25,13 +24,14 @@ class MasterMind
   def choose_code
     valid = false
     while valid = false
-      @code = @player_two.set_code
-      if @code.code_valid?
+      solution = @player_two.set_solution
+      if @player_two.valid_input(solution)
         valid = true
       else
         puts "that was not a valid code, try again"
       end
     end
+
   end
 
   def game_logic
@@ -45,13 +45,15 @@ class MasterMind
     @tries.upto(12) do
       @board.render
       guess = @player_one.guess
-      @board.board_move(guess)
+      @board.board_move(guess, solution)
       game_over?
     end
   end
+
   def game_over?
 
   end
+
   def play_again?
 
   end
@@ -63,20 +65,12 @@ class MasterMind
   # reverse player roles
   # quit
 
-  def code_valid?(code)
-    valid = true
-    code.each.to_i do |number|
-      if number > 6 || number < 1
-        valid = false
-      end
-    end
-    valid
-  end
+
 end
 
 class Board
-  # initialize board
   PEG_COLOR = [1, 2, 3, 4, 5, 6]
+
   def initialize
     @pegs = {}
     @guesses = []
@@ -84,8 +78,8 @@ class Board
   end
 
   def render
-    @guesses.zip(@results).each do |guess, result| 
-      print "\n" 
+    @guesses.zip(@results).each do |guess, result|
+      print "\n"
       print "#{guess}    #{result}"
     end
     print "[# fully right, # right number, # wrong] \n"
@@ -93,41 +87,60 @@ class Board
   end
 
 
-  def board_move(guess)
-    guess_check(guess)
-  end
-
-  def guess_check
-
+  def board_move(guess, solution)
+    @guesses << guess
+    @results << guess_feedback(guess, solution)
   end
   # prompt guesser for move
-  # checks guess
+  # determine outcome
   # render board
 end
 
-class HumanPlayer
+class Player
+
+  def valid_input(combination)
+    valid = true
+    combination.each.to_i do |number|
+      if number > 6 || number < 1
+        valid = false
+      end
+    end
+    valid
+  end
+
+end
+
+class HumanPlayer < Player
+
   def initialize(role = "codesetter")
     @role = role
     @name = name
   end
-  def set_code
+
+  def set_solution
     if role = "codesetter"
       puts "You get to set the code, #{@name}"
       puts "Pick four numbers between 1 and 6 inclusive"
       puts "In the following format '1 2 3 4' "
-      code = gets.chomp.split("")
+      solution = gets.chomp.split("")
     else
-      code = nil
+      solution = nil
     end
-    code
+    solution
   end
-  def guess
 
+  def guess
+    puts "Pick four numbers between 1 and 6 inclusive"
+    puts "In the following format '1 2 3 4' "
+    player_guess = gets.chomp.split('')
+    if valid_input(player_guess)
+      player_guess
+    else guess
   end
   # make guess
 end
 
-class ComputerPlayer
+class ComputerPlayer < Player
   def initialize(role = "codesetter")
     @role = role
   end
