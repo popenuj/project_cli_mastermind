@@ -141,7 +141,6 @@ class Board
         feedback[0] += 1
       end
     end
-
     guess.each do |number|
       unless @solution.include?(number)
         feedback[2] += 1
@@ -194,7 +193,7 @@ class HumanPlayer < Player
     if valid_input(player_guess)
       player_guess
     else guess
-    end  
+    end
   end
   # make guess
 end
